@@ -1,0 +1,155 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Theater Seat Map</title>
+</head>
+<body>
+    <h1>Movie Theater Seat Map</h1>
+    <div id="seat-map">
+        
+    </div>
+
+    <script>
+    
+        fetch('/api/seats')
+            .then(response => response.json())
+            .then(data => {
+                const seatMap = document.getElementById('seat-map');
+                data.seats.forEach(seat => {
+                    const seatDiv = document.createElement('div');
+                    seatDiv.textContent = `Row ${seat.row_number}, Seat ${seat.seat_number} - Status: ${seat.status}`;
+                    seatMap.appendChild(seatDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching seat data:', error);
+            });
+    </script>
+</body>
+</html> -->
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Theater Seat Map</title>
+     Link to your CSS file 
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Movie Theater Seat Map</h1>
+    <div id="seat-map">
+
+    </div>
+
+    <script>
+        
+        fetch('/api/seats')
+            .then(response => response.json())
+            .then(data => {
+                const seatMap = document.getElementById('seat-map');
+                data.seats.forEach(seat => {
+                    const seatDiv = document.createElement('div');
+                    seatDiv.textContent = `Row ${seat.row_number}, Seat ${seat.seat_number} - Status: ${seat.status}`;
+                    seatMap.appendChild(seatDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching seat data:', error);
+            });
+    </script>
+</body>
+</html>
+ -->
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Theater Seat Map</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Movie Theater Seat Map</h1>
+    <div id="seat-map">
+        <!-- Seat information will be displayed here -->
+    </div>
+
+    <!-- <script>
+        // Fetch the seat data from the API
+        fetch('/api/seats')
+            .then(response => response.json())
+            .then(data => {
+                const seatMap = document.getElementById('seat-map');
+
+                // Create rows and seats
+                data.seats.forEach(seat => {
+                    // Create a row if it doesn't exist
+                    let rowDiv = document.getElementById(`row-${seat.row_number}`);
+                    if (!rowDiv) {
+                        rowDiv = document.createElement('div');
+                        rowDiv.className = 'row';
+                        rowDiv.id = `row-${seat.row_number}`;
+                        seatMap.appendChild(rowDiv);
+                    }
+
+                    // Create seat div
+                    const seatDiv = document.createElement('div');
+                    seatDiv.className = `seat ${seat.status}`;
+                    seatDiv.textContent = `${seat.seat_number}`;
+                    rowDiv.appendChild(seatDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching seat data:', error);
+            });
+
+            
+    </script> -->
+
+    <script>
+        // Fetch the seat data from the API
+        fetch('/api/seats')
+            .then(response => response.json())
+            .then(data => {
+                const seatMap = document.getElementById('seat-map');
+    
+                // Create rows and seats
+                data.seats.forEach(seat => {
+                    // Create a row if it doesn't exist
+                    let rowDiv = document.getElementById(`row-${seat.row_number}`);
+                    if (!rowDiv) {
+                        rowDiv = document.createElement('div');
+                        rowDiv.className = 'row';
+                        rowDiv.id = `row-${seat.row_number}`;
+                        seatMap.appendChild(rowDiv);
+                    }
+    
+                    // Create seat div
+                    const seatDiv = document.createElement('div');
+                    seatDiv.className = `seat ${seat.status}`; // Use status from the database
+                    seatDiv.textContent = `${seat.seat_number}`;
+                    
+                    // Add click event for seat selection
+                    seatDiv.addEventListener('click', () => {
+                        if (seat.status === 'available') {
+                            seatDiv.classList.toggle('selected');
+                            seat.status = seatDiv.classList.contains('selected') ? 'selected' : 'available';
+                        }
+                    });
+    
+                    rowDiv.appendChild(seatDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching seat data:', error);
+            });
+    </script>
+    
+</body>
+</html>

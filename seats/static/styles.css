@@ -1,0 +1,77 @@
+/* body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+}
+
+#seat-map {
+    margin-top: 20px;
+}
+
+#seat-map div {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+} */
+
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+#seat-map {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+}
+
+.seat {
+    width: 40px;
+    height: 40px;
+    margin: 0 5px;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.seat.available {
+    background-color: #4CAF50; /* Green for available */
+}
+
+.seat.unavailable {
+    background-color: #f44336; /* Red for unavailable */
+    cursor: not-allowed;
+}
+
+.seat.selected {
+    background-color: #2196F3; /* Blue for selected */
+}
+
+.seat:hover {
+    opacity: 0.8;
+}
