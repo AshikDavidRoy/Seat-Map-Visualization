@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Theater Seat Map</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <h1>Movie Theater Seat Map</h1>
+    <div id="seat-map"></div>
+    <script>
+        // Fetch the seat data from the PHP API
+        fetch('get_seats.php')
+            .then(response => response.json())
+            .then(data => {
+                const seatMap = document.getElementById('seat-map');
+
+                // Create rows and seats
+                data.forEach(seat => {
+                    // Create a row if it doesn't exist
+                    let rowDiv = document.getElementById(`row-${seat.row_number}`);
+                    if (!rowDiv) {
+                        rowDiv = document.createElement('div');
+                        rowDiv.className = 'row';
+                        rowDiv.id = `row-${seat.row_number}`;
+                        seatMap.appendChild(rowDiv);
+                    }
+
+                    // Create seat div
+                    const seatDiv = document.createElement('div');
+                    seatDiv.className = `seat ${seat.status}`;
+                    seatDiv.textContent = `${seat.seat_number}`;
+                    rowDiv.appendChild(seatDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching seat data:', error);
+            });
+    </script>
+</body>
+</html>
