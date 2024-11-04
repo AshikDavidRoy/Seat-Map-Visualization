@@ -14,7 +14,7 @@ db_config = {
 
 @app.route('/')
 def index():
-    return render_template('2.html')  # Render the main HTML page
+    return render_template('3.html')  # Render the main HTML page
 
 @app.route('/api/seats')
 def get_seats():

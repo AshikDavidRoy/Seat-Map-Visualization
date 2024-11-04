@@ -9,9 +9,29 @@
 <body>
     <h1>Movie Theater Seat Map</h1>
     <div id="seat-map">
-         
     </div> 
+    <button id="book-btn" onclick="openPopup()">Book</button>
 
+    <div id="form-popup" class="popup">
+        <form id="booking-form">
+            <h2>Book Seats</h2>
+            <label for="teacher-name">Teacher's Name:</label>
+            <input type="text" id="teacher-name" name="teacher-name" required>
+    
+            <label for="subjects">Subjects:</label>
+            <input type="text" id="subjects" name="subjects" required>
+    
+            <div id="student-names">
+                <!-- Student name fields will be dynamically added here -->
+            </div>
+    
+            <button type="button" onclick="submitBooking()">Submit</button>
+            <button type="button" onclick="closePopup()">Cancel</button>
+        </form>
+    </div>
+    
+    
+    
     <script>
         // Fetch the seat data from the API
         fetch('/api/seats')
@@ -40,10 +60,7 @@
             .catch(error => {
                 console.error('Error fetching seat data:', error);
             });
-
-            
     </script> 
-
      <script>
         // Fetch the seat data from the API
         fetch('/api/seats')
@@ -81,6 +98,79 @@
             .catch(error => {
                 console.error('Error fetching seat data:', error);
             });
+    </script>
+
+    <script>
+        // Store selected seats
+let selectedSeats = [];
+
+// Update to handle seat selection
+document.querySelectorAll('.seat.available').forEach(seat => {
+    seat.addEventListener('click', () => {
+        const seatId = seat.getAttribute('data-seat-id'); // Use a unique ID to track each seat
+        const seatIndex = selectedSeats.indexOf(seatId);
+
+        if (seatIndex === -1) {
+            selectedSeats.push(seatId);
+            seat.classList.add('selected');
+        } else {
+            selectedSeats.splice(seatIndex, 1);
+            seat.classList.remove('selected');
+        }
+    });
+});
+
+function openPopup() {
+    // Ensure we have at least two seats selected (one for the teacher and one for at least one student)
+    if (selectedSeats.length < 2) {
+        alert('Please select at least one seat for the teacher and one for a student.');
+        return;
+    }
+
+    document.getElementById('form-popup').style.display = 'flex';
+
+    const studentNamesDiv = document.getElementById('student-names');
+    studentNamesDiv.innerHTML = '';
+
+    // Add input fields for student names based on the number of selected seats minus one (for the teacher)
+    for (let i = 1; i < selectedSeats.length; i++) {
+        const label = document.createElement('label');
+        label.textContent = `Student ${i} Name:`;
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = `student-name-${i}`;
+        input.required = true;
+
+        studentNamesDiv.appendChild(label);
+        studentNamesDiv.appendChild(input);
+    }
+}
+
+function closePopup() {
+    document.getElementById('form-popup').style.display = 'none';
+}
+
+function submitBooking() {
+    const teacherName = document.getElementById('teacher-name').value;
+    const subjects = document.getElementById('subjects').value;
+    const studentNames = [];
+
+    for (let i = 1; i < selectedSeats.length; i++) {
+        const studentName = document.querySelector(`input[name="student-name-${i}"]`).value;
+        studentNames.push(studentName);
+    }
+
+    console.log("Booking Details:");
+    console.log("Teacher:", teacherName);
+    console.log("Subjects:", subjects);
+    console.log("Students:", studentNames);
+
+    alert("Seats booked successfully!");
+
+    closePopup();
+}
+
     </script>
     
 </body>

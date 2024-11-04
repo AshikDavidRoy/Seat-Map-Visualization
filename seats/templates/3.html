@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Theater Seat Map</title>
+    <style>
+        /* CSS */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        #seat-map {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 0 5px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .seat.available {
+            background-color: #4CAF50; /* Green for available */
+        }
+
+        .seat.unavailable {
+            background-color: #f44336; /* Red for unavailable */
+            cursor: not-allowed;
+        }
+
+        .seat.selected {
+            background-color: #2196F3; /* Blue for selected */
+        }
+
+        .seat:hover {
+            opacity: 0.8;
+        }
+
+        /* Popup form */
+        #booking-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        #booking-form input[type="text"], #booking-form input[type="button"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Movie Theater Seat Map</h1>
+    <div id="seat-map"></div>
+    <button onclick="openBookingForm()" id="book-btn" disabled>Book Selected Seats</button>
+
+    <!-- Popup booking form -->
+    <div id="overlay" onclick="closeBookingForm()"></div>
+    <div id="booking-form">
+        <h2>Booking Form</h2>
+        <label for="teacher-name">Teacher's Name:</label>
+        <input type="text" id="teacher-name" placeholder="Enter teacher's name">
+        
+        <div id="student-names-container"></div>
+        
+        <input type="button" value="Confirm Booking" onclick="confirmBooking()">
+        <input type="button" value="Cancel" onclick="closeBookingForm()">
+    </div>
+
+    <script>
+        // Sample seat data
+        const sampleSeatsData = {
+            "seats": [
+                {"row_number": 1, "seat_number": 1, "status": "available"},
+            {"row_number": 1, "seat_number": 2, "status": "available"},
+            {"row_number": 1, "seat_number": 3, "status": "available"},
+            {"row_number": 1, "seat_number": 4, "status": "available"},
+            {"row_number": 1, "seat_number": 5, "status": "available"},
+            {"row_number": 1, "seat_number": 6, "status": "unavailable"},
+            {"row_number": 1, "seat_number": 7, "status": "available"},
+            {"row_number": 1, "seat_number": 8, "status": "available"},
+            {"row_number": 1, "seat_number": 9, "status": "available"},
+            {"row_number": 1, "seat_number": 10, "status": "available"},
+            {"row_number": 2, "seat_number": 1, "status": "available"},
+            {"row_number": 2, "seat_number": 2, "status": "available"},
+            {"row_number": 2, "seat_number": 3, "status": "unavailable"},
+            {"row_number": 2, "seat_number": 4, "status": "available"},
+            {"row_number": 2, "seat_number": 5, "status": "available"},
+            {"row_number": 2, "seat_number": 6, "status": "available"},
+            {"row_number": 2, "seat_number": 7, "status": "available"},
+            {"row_number": 2, "seat_number": 8, "status": "unavailable"},
+            {"row_number": 2, "seat_number": 9, "status": "available"},
+            {"row_number": 2, "seat_number": 10, "status": "available"},
+            {"row_number": 3, "seat_number": 1, "status": "available"},
+            {"row_number": 3, "seat_number": 2, "status": "available"},
+            {"row_number": 3, "seat_number": 3, "status": "available"},
+            {"row_number": 3, "seat_number": 4, "status": "available"},
+            {"row_number": 3, "seat_number": 5, "status": "unavailable"},
+            {"row_number": 3, "seat_number": 6, "status": "available"},
+            {"row_number": 3, "seat_number": 7, "status": "available"},
+            {"row_number": 3, "seat_number": 8, "status": "available"},
+            {"row_number": 3, "seat_number": 9, "status": "available"},
+            {"row_number": 3, "seat_number": 10, "status": "available"},
+            {"row_number": 4, "seat_number": 1, "status": "available"},
+            {"row_number": 4, "seat_number": 2, "status": "available"},
+            {"row_number": 4, "seat_number": 3, "status": "available"},
+            {"row_number": 4, "seat_number": 4, "status": "available"},
+            {"row_number": 4, "seat_number": 5, "status": "available"},
+            {"row_number": 4, "seat_number": 6, "status": "available"},
+            {"row_number": 4, "seat_number": 7, "status": "unavailable"},
+            {"row_number": 4, "seat_number": 8, "status": "available"},
+            {"row_number": 4, "seat_number": 9, "status": "available"},
+            {"row_number": 4, "seat_number": 10, "status": "available"},
+            {"row_number": 5, "seat_number": 1, "status": "unavailable"},
+            {"row_number": 5, "seat_number": 2, "status": "available"},
+            {"row_number": 5, "seat_number": 3, "status": "available"},
+            {"row_number": 5, "seat_number": 4, "status": "available"},
+            {"row_number": 5, "seat_number": 5, "status": "available"},
+            {"row_number": 5, "seat_number": 6, "status": "available"},
+            {"row_number": 5, "seat_number": 7, "status": "available"},
+            {"row_number": 5, "seat_number": 8, "status": "available"},
+            {"row_number": 5, "seat_number": 9, "status": "available"},
+            {"row_number": 5, "seat_number": 10, "status": "available"}
+        
+            ]
+        };
+
+        const seatMap = document.getElementById('seat-map');
+        let selectedSeats = [];
+
+        // Create rows and seats
+        sampleSeatsData.seats.forEach(seat => {
+            // Create row if it doesn't exist
+            let rowDiv = document.getElementById(`row-${seat.row_number}`);
+            if (!rowDiv) {
+                rowDiv = document.createElement('div');
+                rowDiv.className = 'row';
+                rowDiv.id = `row-${seat.row_number}`;
+                seatMap.appendChild(rowDiv);
+            }
+
+            // Create seat div
+            const seatDiv = document.createElement('div');
+            seatDiv.className = `seat ${seat.status}`;
+            seatDiv.textContent = `${seat.seat_number}`;
+            seatDiv.onclick = () => toggleSeatSelection(seatDiv, seat);
+
+            rowDiv.appendChild(seatDiv);
+        });
+
+        function toggleSeatSelection(seatDiv, seat) {
+            if (seat.status === "available") {
+                seatDiv.classList.toggle('selected');
+                if (seatDiv.classList.contains('selected')) {
+                    selectedSeats.push(seat);
+                } else {
+                    selectedSeats = selectedSeats.filter(s => s !== seat);
+                }
+                document.getElementById('book-btn').disabled = selectedSeats.length === 0;
+            }
+        }
+
+        function openBookingForm() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('booking-form').style.display = 'block';
+
+            const studentContainer = document.getElementById('student-names-container');
+            studentContainer.innerHTML = '';
+
+            // Dynamically create fields for students based on selected seats count
+            selectedSeats.slice(1).forEach((_, index) => {
+                const label = document.createElement('label');
+                label.textContent = `Student ${index + 1} Name:`;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = `Enter Student ${index + 1}'s Name`;
+                studentContainer.appendChild(label);
+                studentContainer.appendChild(input);
+            });
+        }
+
+        function closeBookingForm() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('booking-form').style.display = 'none';
+        }
+
+        function confirmBooking() {
+            const teacherName = document.getElementById('teacher-name').value;
+            const studentNames = Array.from(document.getElementById('student-names-container').querySelectorAll('input')).map(input => input.value);
+
+            if (!teacherName || studentNames.includes('')) {
+                alert('Please fill out all fields.');
+                return;
+            }
+
+            alert(`Booking Confirmed:\nTeacher: ${teacherName}\nStudents: ${studentNames.join(', ')}`);
+            closeBookingForm();
+
+            // Update selected seats to unavailable
+            selectedSeats.forEach(seat => {
+                seat.status = 'unavailable';
+                const seatDiv = document.querySelector(`#row-${seat.row_number} .seat:nth-child(${seat.seat_number})`);
+                seatDiv.className = 'seat unavailable';
+                seatDiv.onclick = null;
+            });
+
+            selectedSeats = [];
+            document.getElementById('book-btn').disabled = true;
+        }
+    </script>
+</body>
+</html>
